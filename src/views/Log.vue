@@ -5,14 +5,7 @@
         <b-row class="mt-5">
           <b-col>
             <b-card title="Logs">
-              <b-table striped hover :items="logs" :fields="fields">
-                <template v-slot:cell(time_in)="data" >
-                  {{ data.item.time_in | getDate }}
-                </template>
-                <template v-slot:cell(time_out)="data" >
-                  {{ data.item.time_out | getDate }}
-                </template>
-              </b-table>
+              <b-table striped hover :items="logs" :fields="fields"></b-table>
             </b-card>
           </b-col>
         </b-row>
@@ -31,23 +24,20 @@ export default {
       logs: [],
       fields: [
         {
-          key: 'rfid'
+          key: 'output_guid'
         },
         {
-          key: 'username'
+          key: 'output_value'
         },
         {
-          key: 'time_in'
-        },
-        {
-          key: 'time_out'
+          key: 'time_device'
         }
       ]
     }
   },
   beforeCreate: function () {
     rmq.on('connect', function () {
-      rmq.subscribe('gate-fallback')
+      rmq.subscribe('Aktuator')
     })
   },
   filters: {
@@ -61,14 +51,10 @@ export default {
     filldata: function () {
       const ini = this
       rmq.on('message', function (topic, message) {
-        const data = message.toString().split('#')
-        if (data[3] === 'gate-open') {
-          ini.parkingIn.push({ rfid: data[0], username: data[1], time_in: data[2] })
-        }
-
-        if (data[3] === 'gate-close') {
-          ini.parkingOut.push({ rfid: data[0], username: data[1], time_out: data[2] })
-        }
+        const decoded = new TextDecoder('utf-8').decode(message)
+        const data = decoded.toString().split('#')
+        const time = new Date()
+        ini.logs.push({ output_guid: data[0], output_value: data[1], time_device: time })
       })
     },
     getLogs: async function () {
@@ -82,7 +68,6 @@ export default {
   },
   mounted () {
     this.filldata()
-    this.getLogs()
   }
 }
 </script>

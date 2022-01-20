@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Dashboard from '../views/Dashboard'
 import Logs from '../views/Log'
-import Users from '../views/Users'
 
 Vue.use(VueRouter)
 
@@ -10,16 +8,6 @@ const routes = [
   {
     path: '/',
     name: 'dashboard',
-    component: Dashboard
-  },
-  {
-    path: '/users',
-    name: 'users',
-    component: Users
-  },
-  {
-    path: '/logs',
-    name: 'Logs',
     component: Logs
   }
 ]
